@@ -19,3 +19,9 @@ class Incident(models.Model):
     def __unicode__(self):
         return self.name
 
+    def parse_point_string(self):
+        point = self.point_string.split(',')
+        print self.point_string
+        self.point_lat = point[1]
+        self.point_lon = point[0]
+

@@ -1,0 +1,57 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Incidents Map</title>
+  <link rel="stylesheet" type="text/css" href="{% static "leaflet/dist/leaflet.css" %}">
+  <style>
+  body { font-family: Helvetica, Verdana, Arial; font-size: 13px;}
+  #map { height: 300px; }
+  </style>
+</head>
+<body>
+  <h1>Incidents Map</h1>
+
+  <div id="map"></div>
+
+  {% if incidents %}
+    <ul>
+    {% for incident in incidents %}
+        <li>{{ incident.name }}</a></li>
+    {% endfor %}
+    </ul>
+  {% else %}
+      <p>No incidents right now.</p>
+  {% endif %}
+
+  <script>
+  var incidents = [
+    {% if incidents %}
+      {% for incident in incidents %}
+        {
+          'name': "{{ incident.name }}",
+          'lat': "{{ incident.point_lat }}",
+          'lon': "{{ incident.point_lon }}",
+          'description': "{{ incident.description | safe }}",
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    {% endif %}
+  ];
+  </script>
+  <script src="{% static "leaflet/dist/leaflet.js" %}"></script>
+  <script>
+  var map_center = [{{map_center_lat}}, {{map_center_lon}}];
+  var map = L.map('map').setView([map_center[0], map_center[1]], 5);
+  // 39.739167, -104.984722
+  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+      maxZoom: 18
+  }).addTo(map);
+
+  for (var i = 0; i < incidents.length; i++) {
+    var marker = L.marker([incidents[i].lat, incidents[i].lon]).addTo(map);
+    marker.bindPopup('<b>' + incidents[i].name + '</b><br />' + incidents[i].description);
+  }
+  </script>
+</body>
+</html>
