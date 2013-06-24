@@ -7,22 +7,53 @@
   <style>
   body { font-family: Helvetica, Verdana, Arial; font-size: 13px;}
   #map { height: 300px; }
+  table {margin:0;padding:0;border-collapse: collapse;}
+  td, th {padding:.5em;}
+  thead tr {background:#ccc;border-bottom:1px solid #aaa;}
+  tbody tr:nth-child(even) { background: #ccc; }
+  section {max-width:1000px;margin:0 auto;}
   </style>
 </head>
 <body>
+  <section>
   <h1>Incidents Map</h1>
 
   <div id="map"></div>
 
   {% if incidents %}
-    <ul>
-    {% for incident in incidents %}
-        <li>{{ incident.name }}</a></li>
-    {% endfor %}
-    </ul>
+    <p>Here is a tabular representation of the fire incidents</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Location</th>
+          <th>Lat/Lon</th>
+          <th>Containment</th>
+          <th>Size</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for incident in incidents %}
+        <tr><td><a href="#" class="incident">{{ incident.name }}</a></td><td>{{ incident.incident_date }}</td><td>{{ incident.fire_location }}</td><td>{{ incident.point_lat }}, {{ incident.point_lon }}</td><td>{{ incident.percent_contained }}</td><td>{{ incident.fire_size_acres }} acres</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p><a href="/json">JSON formatted data</a></p>
   {% else %}
       <p>No incidents right now.</p>
   {% endif %}
+
+  </section>
+
+  <section>
+    <header><h1>About</h1></header>
+    <p>There are several sites that provide maps and even some that have map data. Most systems though return maps that require plugins or other slow interfaces. This map was born to quickly represent much of this information in a usable way.</p>
+
+    <p>Currently this is powered by a <a href="http://djangoproject.org">Django application</a> and then exported to S3.</p>
+
+    <p>Site created by <a href="http://robballou.com" rel="me">Rob Ballou</a>, 2013.</p>
+  </section>
 
   <script>
   var incidents = [
@@ -38,6 +69,12 @@
     {% endif %}
   ];
   </script>
+  {% if fire_perimeters %}
+  <script>
+  var perimeters = {{ fire_perimeters | safe }};
+  </script>
+  {% endif %}
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
   <script src="{% static "leaflet/dist/leaflet.js" %}"></script>
   <script>
   var map_center = [{{map_center_lat}}, {{map_center_lon}}];
@@ -48,10 +85,35 @@
       maxZoom: 18
   }).addTo(map);
 
+  var incident_markers = {};
   for (var i = 0; i < incidents.length; i++) {
-    var marker = L.marker([incidents[i].lat, incidents[i].lon]).addTo(map);
+    var marker = L.circleMarker([incidents[i].lat, incidents[i].lon]).addTo(map);
+    marker.setRadius(5);
     marker.bindPopup('<b>' + incidents[i].name + '</b><br />' + incidents[i].description);
+    incident_markers[incidents[i].name] = marker;
   }
+
+  for (var feature in perimeters.features) {
+    if (perimeters.features.hasOwnProperty(feature)) {
+      var this_feature = perimeters.features[feature];
+      if (this_feature.geometry.type !== 'Point') {
+        var geo_feature = L.geoJson(this_feature, {style: {'color': '#ff0000', 'weight': 1}}).addTo(map);
+        geo_feature.bindPopup('<b>' + this_feature.properties.name + '</b>');
+      }
+    }
+  }
+
+  $(document).ready(function() {
+    $('body').on('click', 'a.incident', function(event) {
+      event.preventDefault();
+      var this_name = $(this).text();
+      $.each(incident_markers, function(key, incident) {
+        if (key == this_name) {
+          incident.openPopup();
+        }
+      });
+    });
+  });
   </script>
 </body>
 </html>

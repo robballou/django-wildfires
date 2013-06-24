@@ -1,2 +1,5 @@
 *.sqlite3
 *.pyc
+*.km*
+index.html
+json

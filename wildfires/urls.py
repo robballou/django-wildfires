@@ -11,4 +11,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^$', 'incidents.views.overview_map'),
+    url(r'^json$', 'incidents.views.overview_data'),
 )

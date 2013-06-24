@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from incidents.models import Incident
 from xml.dom import minidom
 import os
@@ -28,6 +28,9 @@ class Command(BaseCommand):
                                 this_incident.point_string = coords
                                 this_incident.parse_point_string()
 
+
+                    this_incident.parse_description()
+                    this_incident.parse_size()
 
                     # check if the incident exists
                     existing_incident = Incident.objects.filter(name=this_incident.name)
