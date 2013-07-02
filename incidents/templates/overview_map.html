@@ -2,27 +2,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Incidents Map</title>
+  <title>Wildfire Incidents Map</title>
   <link rel="stylesheet" type="text/css" href="{% static "leaflet/dist/leaflet.css" %}">
   <style>
   body { font-family: Helvetica, Verdana, Arial; font-size: 13px;}
   #map { height: 300px; }
   table {margin:0;padding:0;border-collapse: collapse;}
-  td, th {padding:.5em;}
+  td, th {padding:.5em;text-align:left;}
   thead tr {background:#ccc;border-bottom:1px solid #aaa;}
   tbody tr:nth-child(even) { background: #ccc; }
   section {max-width:1000px;margin:0 auto;}
+  #incidents-data {width:100%;}
   </style>
 </head>
 <body>
-  <section>
-  <h1>Incidents Map</h1>
+  <section id="incident-map">
+  <h1>Wildfire Incidents Map</h1>
 
   <div id="map"></div>
 
   {% if incidents %}
     <p>Here is a tabular representation of the fire incidents</p>
-    <table>
+    <table id="incidents-data">
       <thead>
         <tr>
           <th>Name</th>
@@ -39,14 +40,14 @@
       {% endfor %}
       </tbody>
     </table>
-    <p><a href="/json">JSON formatted data</a></p>
+    <p><a href="/json">JSON formatted data</a>: download the JSON version of the data used for incident points and data. This does not include perimeters.</p>
   {% else %}
       <p>No incidents right now.</p>
   {% endif %}
 
   </section>
 
-  <section>
+  <section id="about">
     <header><h1>About</h1></header>
     <p>There are several sites that provide maps and even some that have map data. Most systems though return maps that require plugins or other slow interfaces. This map was born to quickly represent much of this information in a usable way.</p>
 
@@ -79,9 +80,9 @@
   <script>
   var map_center = [{{map_center_lat}}, {{map_center_lon}}];
   var map = L.map('map').setView([map_center[0], map_center[1]], 5);
-  // 39.739167, -104.984722
+
   L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
       maxZoom: 18
   }).addTo(map);
 
