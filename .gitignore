@@ -3,3 +3,4 @@
 *.km*
 index.html
 json
+wildfires/settings_local.py
