@@ -7,9 +7,12 @@ from django.template import RequestContext, loader
 from incidents.models import Incident
 from django.contrib.staticfiles.finders import FileSystemFinder
 
+def get_incidents():
+    return Incident.objects.exclude(fire_size_acres=0).order_by('name')
+
 # Create your views here.
 def overview_map(request):
-    incidents = Incident.objects.order_by('name')
+    incidents = get_incidents()
     map_center = center_geolocation(incidents)
     template = loader.get_template('overview_map.html')
     finder = FileSystemFinder()
@@ -28,7 +31,7 @@ def overview_map(request):
     return HttpResponse(template.render(context))
 
 def overview_data(request):
-    incidents = Incident.objects.order_by('name')
+    incidents = get_incidents()
     incidents_json = []
     for incident in incidents:
         incident_json = {}

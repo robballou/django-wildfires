@@ -51,6 +51,8 @@
     <header><h1>About</h1></header>
     <p>There are several sites that provide maps and even some that have map data. Most systems though return maps that require plugins or other slow interfaces. This map was born to quickly represent much of this information in a usable way.</p>
 
+    <p>The fire "point" data is pulled from: <a href="http://activefiremaps.fs.fed.us/">Active Fire Mapping Program</a>. It contains large incidents. The fire perimeter data is pulled from: <a href="http://www.geomac.gov/index.shtml">GeoMac</a></p>
+
     <p>Currently this is powered by a <a href="http://djangoproject.org">Django application</a> and then exported to S3.</p>
 
     <p>Site created by <a href="http://robballou.com" rel="me">Rob Ballou</a>, 2013.</p>
@@ -64,6 +66,7 @@
           'name': "{{ incident.name }}",
           'lat': "{{ incident.point_lat }}",
           'lon': "{{ incident.point_lon }}",
+          'percent_contained': "{{ incident.percent_contained }}",
           'description': "{{ incident.description | safe }}",
         }{% if not forloop.last %},{% endif %}
       {% endfor %}
@@ -86,9 +89,31 @@
       maxZoom: 18
   }).addTo(map);
 
-  var incident_markers = {};
+  var incident_markers = {},
+    percent_regex = /^(\d+)%/;
   for (var i = 0; i < incidents.length; i++) {
-    var marker = L.circleMarker([incidents[i].lat, incidents[i].lon]).addTo(map);
+    var marker = L.circleMarker([incidents[i].lat, incidents[i].lon]).addTo(map),
+      percent_contained = incidents[i].percent_contained,
+      color = '';
+
+    if (percent_regex.test(percent_contained)) {
+      match = percent_contained.match(percent_regex);
+      percent_contained = parseInt(match[1], 10);
+      if (percent_contained === 0) {
+        color = '#FF3300';
+      }
+      else if (percent_contained > 0 && percent_contained < 50) {
+        color ='#999900';
+      }
+      else if (percent_contained >= 50 && percent_contained < 70) {
+        color ='#3399FF';
+      }
+      else if (percent_contained >= 70) {
+        color ='#66CC00';
+      }
+      marker.setStyle({'color': color });
+    }
+
     marker.setRadius(5);
     marker.bindPopup('<b>' + incidents[i].name + '</b><br />' + incidents[i].description);
     incident_markers[incidents[i].name] = marker;
