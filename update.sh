@@ -6,7 +6,7 @@ wget http://activefiremaps.fs.fed.us/data/kml/conus_lg_incidents.kmz
 echo '[ ] Unzip data'
 unzip conus_lg_incidents.kmz
 echo '[ ] Update the data in the app'
-./manage.py parseincidents conus_lg_incidents.kml
+python manage.py parseincidents conus_lg_incidents.kml
 export DATE=`date +"%Y%m%d"`
 echo '[ ] Archiving data as: incident$DATE.kml'
 mv conus_lg_incidents.kml incidents$DATE.kml
