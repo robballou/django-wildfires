@@ -1,0 +1,49 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+
+@import "compass/reset";
+
+body {
+	font-family: Helvetica, Verdana, Arial;
+	font-size: 13px;
+}
+
+h1 {
+	font-size: 2em;
+	padding: 0.5em 0;
+}
+p {
+	padding: 0 0 1em;
+}
+
+#map {
+	height: 300px;
+	margin-bottom: 1em;
+}
+
+table {
+	margin: 0 0 1em;
+	padding: 0;
+	border-collapse: collapse;
+}
+td, th {
+	padding:.5em;
+	text-align:left;
+}
+thead tr {
+	background:#ccc;
+	border-bottom:1px solid #aaa;
+}
+tbody tr:nth-child(even) {
+	background: #ccc;
+}
+section {
+	max-width:1000px;
+	margin:0 auto;
+}
+
+#incidents-data {
+	width:100%;
+}

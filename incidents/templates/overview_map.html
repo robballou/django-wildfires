@@ -4,16 +4,11 @@
 <head>
   <title>Wildfire Incidents Map</title>
   <link rel="stylesheet" type="text/css" href="{% static "leaflet/dist/leaflet.css" %}">
-  <style>
-  body { font-family: Helvetica, Verdana, Arial; font-size: 13px;}
-  #map { height: 300px; }
-  table {margin:0;padding:0;border-collapse: collapse;}
-  td, th {padding:.5em;text-align:left;}
-  thead tr {background:#ccc;border-bottom:1px solid #aaa;}
-  tbody tr:nth-child(even) { background: #ccc; }
-  section {max-width:1000px;margin:0 auto;}
-  #incidents-data {width:100%;}
-  </style>
+  <link href="{% static "screen.css" %}" media="screen, projection" rel="stylesheet" type="text/css" />
+  <link href="{% static "print.css" %}" media="print" rel="stylesheet" type="text/css" />
+  <!--[if IE]>
+      <link href="{% static "ie.css" %}" media="screen, projection" rel="stylesheet" type="text/css" />
+  <![endif]-->
 </head>
 <body>
   <section id="incident-map">
@@ -22,7 +17,6 @@
   <div id="map"></div>
 
   {% if incidents %}
-    <p>Here is a tabular representation of the fire incidents</p>
     <table id="incidents-data">
       <thead>
         <tr>
@@ -73,73 +67,13 @@
     {% endif %}
   ];
   </script>
-  {% if fire_perimeters %}
-  <script>
-  var perimeters = {{ fire_perimeters | safe }};
-  </script>
-  {% endif %}
+  <script src="{% static "fire_perimeters.min.json" %}"></script>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
   <script src="{% static "leaflet/dist/leaflet.js" %}"></script>
   <script>
   var map_center = [{{map_center_lat}}, {{map_center_lon}}];
-  var map = L.map('map').setView([map_center[0], map_center[1]], 5);
-
-  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-      maxZoom: 18
-  }).addTo(map);
-
-  var incident_markers = {},
-    percent_regex = /^(\d+)%/;
-  for (var i = 0; i < incidents.length; i++) {
-    var marker = L.circleMarker([incidents[i].lat, incidents[i].lon]).addTo(map),
-      percent_contained = incidents[i].percent_contained,
-      color = '';
-
-    if (percent_regex.test(percent_contained)) {
-      match = percent_contained.match(percent_regex);
-      percent_contained = parseInt(match[1], 10);
-      if (percent_contained === 0) {
-        color = '#FF3300';
-      }
-      else if (percent_contained > 0 && percent_contained < 50) {
-        color ='#999900';
-      }
-      else if (percent_contained >= 50 && percent_contained < 70) {
-        color ='#3399FF';
-      }
-      else if (percent_contained >= 70) {
-        color ='#66CC00';
-      }
-      marker.setStyle({'color': color });
-    }
-
-    marker.setRadius(5);
-    marker.bindPopup('<b>' + incidents[i].name + '</b><br />' + incidents[i].description);
-    incident_markers[incidents[i].name] = marker;
-  }
-
-  for (var feature in perimeters.features) {
-    if (perimeters.features.hasOwnProperty(feature)) {
-      var this_feature = perimeters.features[feature];
-      if (this_feature.geometry.type !== 'Point') {
-        var geo_feature = L.geoJson(this_feature, {style: {'color': '#ff0000', 'weight': 1}}).addTo(map);
-        geo_feature.bindPopup('<b>' + this_feature.properties.name + '</b>');
-      }
-    }
-  }
-
-  $(document).ready(function() {
-    $('body').on('click', 'a.incident', function(event) {
-      event.preventDefault();
-      var this_name = $(this).text();
-      $.each(incident_markers, function(key, incident) {
-        if (key == this_name) {
-          incident.openPopup();
-        }
-      });
-    });
-  });
   </script>
+
+  <script src="{% static "wildfires.js" %}"></script>
 </body>
 </html>
