@@ -2,7 +2,9 @@
 *.pyc
 *.km*
 index.html
-json
+/json
 wildfires/settings_local.py
 fabfile.py
 *.sass-cache
+
+static/fire_permieters*
